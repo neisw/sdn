@@ -174,7 +174,8 @@ func (sdn *openShiftSDN) start(stopCh <-chan struct{}) error {
 	klog.Infof("Starting node networking (%s)", version.Get().String())
 
 	serviceability.StartProfiler()
-	if err := sdn.runSDN(); err != nil {
+	err := sdn.runSDN()
+	if err != nil {
 		return err
 	}
 	proxyInitChan := make(chan bool)

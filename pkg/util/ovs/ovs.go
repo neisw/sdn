@@ -11,7 +11,6 @@ import (
 	utilwait "k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/klog/v2"
 	"k8s.io/utils/exec"
-	utiltrace "k8s.io/utils/trace"
 )
 
 // Interface represents an interface to OVS
@@ -109,9 +108,8 @@ type Transaction interface {
 }
 
 const (
-	OVS_OFCTL           = "ovs-ofctl"
-	OVS_VSCTL           = "ovs-vsctl"
-	ovsTxTraceThreshold = 100 * time.Millisecond
+	OVS_OFCTL = "ovs-ofctl"
+	OVS_VSCTL = "ovs-vsctl"
 )
 
 // ~0.05 seconds in total
@@ -452,10 +450,8 @@ func (tx *ovsExecTx) DeleteGroup(groupID uint32) {
 }
 
 func (tx *ovsExecTx) Commit() error {
-	trace := utiltrace.New("OVS Commit transaction")
 	defer func() {
 		tx.mods = []string{}
-		trace.LogIfLong(ovsTxTraceThreshold)
 	}()
 	return utilwait.ExponentialBackoff(ovsBackoff, func() (bool, error) {
 		err := tx.ovsif.bundle(tx.mods)
